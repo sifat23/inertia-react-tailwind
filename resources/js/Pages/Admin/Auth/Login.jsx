@@ -4,9 +4,15 @@ import { FaRegEyeSlash } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa6";
 import BasicButton from "@/components/Buttons/BasicButton.jsx";
 import { FcGoogle } from "react-icons/fc";
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 
 export default function Welcome() {
     const [showPass, setShowPass] = useState(false);
+
+    const dashboard = () => {
+        router.visit(route('admin.dashboard'));
+    }
 
     return (
         <div className="font-[var(--font-primary)] flex flex-col h-screen items-center justify-center bg-background-dark">
@@ -45,7 +51,10 @@ export default function Welcome() {
                     </div>
 
                     <div className="mt-12 w-full">
-                        <BasicButton className="w-full md:h-16 md:text-2xl font-bold duration-300 ease-in-out shadow-slow-hide hover:shadow-link-color bg-linear-[135deg] to-blue-500 from-green-400 hover:to-blue-400 hover:from-green-300">
+                        <BasicButton
+                            type="button"
+                            onClick={() => dashboard()}
+                            className="w-full md:h-16 md:text-2xl font-bold duration-300 ease-in-out shadow-slow-hide hover:shadow-link-color bg-linear-[135deg] to-blue-500 from-green-400 hover:to-blue-400 hover:from-green-300">
                             SIGN IN
                         </BasicButton>
                     </div>
