@@ -9,8 +9,7 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.jsx',
     ],
-    theme: {
-    },
+    theme: {},
     plugins: [
         require('@tailwindcss/forms'),
     ],

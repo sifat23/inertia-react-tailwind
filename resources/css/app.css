@@ -14,6 +14,11 @@
     --color-login-card-body: #151520;
     --color-input-border: #2a2a35;
     --color-input-background: #1a1a25;
+    --color-sign-in-button-background: linear-gradient(135deg, rgb(0, 255, 136), rgb(0, 153, 255));
+    --color-link-color: #00ff88;
+
+    --shadow-slow-hide: 1px 3px 14px -7px black;
+    --shadow-basic-hide: 0 0 10px 0 #151520;
 
     --color-primary: #FF6347;
     --color-secondary: #4682B4;
