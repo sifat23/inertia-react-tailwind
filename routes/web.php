@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -12,4 +13,6 @@ Route::get('/', function () {
 
 Route::get('/admin/login', [AuthController::class, 'login'])->name('admin.login');
 
-Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+Route::get('/admin/category', [CategoryController::class, 'index'])->name('admin.category');

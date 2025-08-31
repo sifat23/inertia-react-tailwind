@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -37,7 +38,11 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'currentRoute' => [
+                'name' => $request->route()->getName(),
+                'prefix' => $request->route()->getCompiled()->getStaticPrefix(),
+                'url' => trim($request->getPathInfo(), '/'),
+            ]
         ];
     }
 }
