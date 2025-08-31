@@ -10,6 +10,7 @@
 }
 
 @theme {
+    --color-prime-base: rgba(223, 223, 223, 0.45);
     --color-background-dark: #0a0a0f;
     --color-login-card-body: #151520;
     --color-input-border: #2a2a35;
@@ -17,10 +18,12 @@
     --color-submenu-hover: #34ae7c;
     --color-link-color: #00ff88;
     --color-border-color: #cccccc;
-    --color-neon: #74ee15;
+    --color-menu-active: #e0f3ff;
 
     --shadow-slow-hide: 1px 3px 14px -7px black;
     --shadow-basic-hide: 0 0 10px 0 #151520;
+    --shadow-after-header: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+
 
     --color-primary: #FF6347;
     --color-secondary: #4682B4;

@@ -4,8 +4,9 @@ import { Link, usePage } from '@inertiajs/react';
 export default function CategoryIndex() {
 
     return (
-        <>
-        this is category</>
+        <div className="m-4 p-2 bg-white">
+            this is category
+        </div>
     )
 }
 
