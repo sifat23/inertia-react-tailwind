@@ -7,7 +7,7 @@ const BasicSelect = ({placeholder, options, className, children, ...props}) => {
             <option value="">{placeholder}</option>
             {options && options.map((item, i) => {
                 return (
-                    <option>{item.label}</option>
+                    <option key={i} value={item.value}>{item.label}</option>
                 )
             })}
         </select>

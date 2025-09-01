@@ -1,5 +1,5 @@
 import AdminLayout from "@/layouts/AdminLayout.jsx";
-import {Link, usePage} from '@inertiajs/react';
+import * as Yup from "yup";
 import Breadcrumb from "@/components/Breadcrumb.jsx";
 import {CiSquarePlus} from "react-icons/ci";
 import {RxCross1} from "react-icons/rx";
@@ -7,6 +7,7 @@ import BasicButton from "@/components/Buttons/BasicButton.jsx";
 import {useState} from "react";
 import BasicInput from "@/components/Inputs/BasicInput.jsx";
 import BasicSelect from "@/components/Inputs/BasicSelect.jsx";
+import {useFormik} from "formik";
 
 const breadcrumb = [
     {
@@ -37,6 +38,23 @@ export default function CategoryIndex() {
         {id: 2, name: "Jane Smith", email: "jane@example.com", role: "Editor"},
         {id: 3, name: "Bob Lee", email: "bob@example.com", role: "User"},
     ];
+
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+            status: "",
+        },
+        validationSchema: Yup.object({
+            name: Yup.string().required("Category name is required"),
+            status: Yup.string().required("Status is required"),
+        }),
+        onSubmit: (values) => {
+            console.log("Form Submitted:", values);
+            // Example for Inertia:
+            // Inertia.post("/categories", values);
+        },
+    });
+
 
     return (
         <div className="m-4">
@@ -116,45 +134,53 @@ export default function CategoryIndex() {
                                 <RxCross1 className="text-[20px]" />
                             </BasicButton>
                         </div>
-                        <form>
+                        <form onSubmit={formik.handleSubmit}>
                             <div className="px-2 py-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="">
                                         <label>Category Name</label>
                                         <BasicInput
                                             type="text"
+                                            name="name"
+                                            value={formik.values.name}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
                                             placeholder="Input field"
-                                            className="mt-2"
+                                            className={`${formik.touched.name && formik.errors.name ? 'border-red-300 focus:ring-red-300' : ''} mt-2`}
                                         />
+                                        {formik.touched.name && formik.errors.name ? (
+                                            <div className="text-red-300 text-sm mt-1">
+                                                {formik.errors.name}
+                                            </div>
+                                        ) : null}
                                     </div>
-                                    <div className="">
-                                        <label>Status</label>
-                                        <BasicInput
-                                            type="text"
-                                            placeholder="Input field"
-                                            className="mt-2"
-                                        />
-                                    </div>
-                                    <div className="">
-                                        <label>Category Name</label>
-                                        <BasicInput
-                                            type="text"
-                                            placeholder="Input field"
-                                            className="mt-2"
-                                        />
-                                    </div>
+
                                     <div>
                                         <label>Status</label>
                                         <BasicSelect
+                                            name='status'
+                                            value={formik.values.status}
                                             placeholder="Select One..."
-                                            className="mt-2"
+                                            className={`${formik.touched.name && formik.errors.name ? 'border-red-300 focus:ring-red-300' : ''} mt-2`}
                                             options={selectOptions}
+                                            onChange={(e) => {
+                                                formik.setFieldValue('status', e.target.value)
+                                            }}
+                                            onBlur={formik.handleBlur}
                                         />
+                                        {formik.touched.status && formik.errors.status ? (
+                                            <div className="text-red-300 text-sm mt-1">
+                                                {formik.errors.status}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </div>
                                 <div className="flex justify-end">
-                                    <BasicButton className="bg-permanent-green text-white mt-8 w-1/6">
-                                        Save
+                                    <BasicButton
+                                        type="submit"
+                                        disabled={formik.isSubmitting}
+                                        className="bg-permanent-green text-white mt-8 w-1/6">
+                                        {formik.isSubmitting ? "Saving..." : "Save"}
                                     </BasicButton>
                                 </div>
                             </div>
