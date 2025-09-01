@@ -9,6 +9,7 @@
     --font-primary: "Vend Sans", sans-serif;
 }
 
+
 @theme {
     --color-prime-base: rgba(223, 223, 223, 0.45);
     --color-background-dark: #0a0a0f;
@@ -20,9 +21,8 @@
     --color-border-color: #cccccc;
     --color-menu-active: #e0f3ff;
 
-
-
     --color-permanent-green: #04AA6D;
+    --color-permanent-overlay: "";
 
 
     --shadow-slow-hide: 1px 3px 14px -7px black;
