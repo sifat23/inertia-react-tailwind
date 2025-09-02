@@ -161,7 +161,7 @@ export default function CategoryIndex() {
                                             name='status'
                                             value={formik.values.status}
                                             placeholder="Select One..."
-                                            className={`${formik.touched.name && formik.errors.name ? 'border-red-300 focus:ring-red-300' : ''} mt-2`}
+                                            className={`${formik.touched.status && formik.errors.status ? 'border-red-300 focus:ring-red-300' : 'border-gray-300 focus:ring-gray-500'} mt-2`}
                                             options={selectOptions}
                                             onChange={(e) => {
                                                 formik.setFieldValue('status', e.target.value)
