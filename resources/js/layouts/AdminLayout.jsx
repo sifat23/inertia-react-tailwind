@@ -44,9 +44,13 @@ export default function AdminLayout({children }) {
                                      className="object-cover rounded-full border-2 border-border-color w-[40px]"
                                      src="/backend/images/user.jpg"
                                      alt="user"/>
-                                <ul className={`absolute bg-red-700 w-[180px] -right-[12px] rounded-md duration-300 ease-in-out mt-4 p-2 ${profileShow ? 'block' : 'hidden'}`}>
+                                <ul className={`absolute bg-white w-[180px] -right-[12px] rounded-md duration-300 ease-in-out mt-3  ${profileShow ? 'block' : 'hidden'}`}>
                                     <li className="p-2 hover:bg-sky-500">Profile</li>
-                                    <li className="p-2">Logout</li>
+                                    <li className="py-3 px-4 hover:bg-submenu-hover">
+                                        <Link href={route('admin.logout')} method="post" as="button">
+                                            Logout
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

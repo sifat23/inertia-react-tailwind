@@ -11,29 +11,52 @@ class AuthController extends Controller
 {
     protected array $message;
 
-    public function login() {
+    public function __construct()
+    {
+        $this->message = [];
+    }
+
+    public function login()
+    {
+        if (Auth::guard('admin')->check()) {
+            return to_route('admin.dashboard');
+        }
+
         return Inertia::render('Admin/Auth/Login');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+        $remember = $request->remember_me; // ✅ ensures true/false
 
-        $credentials = $request->all();
+        if (Auth::guard('admin')->attempt($credentials, $remember)) {
+            $request->session()->regenerate();
 
-        try {
-            if (Auth::guard('admin')->attempt($credentials, $request->remember)) {
-                $request->session()->regenerate();
-                return redirect()->intended(route('admin.dashboard')); // Redirect to admin dashboard
-            }
-        } catch (\Exception $e) {
-            $this->message['type'] = 'error';
-            $this->message['message'] = $e->getMessage();
+            return to_route('admin.dashboard');
         }
 
+//        return Inertia::render('Admin/Auth/Login', [
+//            'request' => $request->all(),
+//            'message' => [
+//                'type' => 'error',
+//                'message' => 'Invalid credentials. Please try again.'
+//            ]
+//        ]);
+    }
 
+    public function logout(Request $request)
+    {
+        // Log out the admin
+        Auth::guard('admin')->logout();
 
-        return Inertia::render('Admin/Auth/Login', [
-            'request' => $request->all(),
-            'message' => $this->message
-        ]);
+        // Invalidate the session
+        $request->session()->invalidate();
+
+        // Regenerate CSRF token to prevent session fixation
+        $request->session()->regenerateToken();
+
+        // Redirect to admin login page
+        return to_route('admin.login');
     }
 }

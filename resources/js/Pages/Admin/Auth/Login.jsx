@@ -7,6 +7,7 @@ import {FcGoogle} from "react-icons/fc";
 import yup from "@/utilities/yup.js";
 import useValidationHook from "@/hooks/useValidationHook.js";
 import {route} from 'ziggy-js';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 const loginSchema = yup.object().shape({
@@ -17,7 +18,7 @@ const loginSchema = yup.object().shape({
 });
 
 
-export default function Welcome() {
+export default function Login() {
     const [showPass, setShowPass] = useState(false);
 
 
@@ -33,6 +34,7 @@ export default function Welcome() {
     } = useForm({
         email: '',
         password: '',
+        remember_me: false,
     });
 
     const {
@@ -53,18 +55,10 @@ export default function Welcome() {
         post(route('admin.login'), {
             preserveScroll: true,
             onSuccess: (page) => {
-                console.log(page)
+                console.log(page);
             },
             onError: (errors) => {
-                if (errors.password) {
-                    reset('password', 'password_confirmation');
-                    passwordInput.current.focus();
-                }
-
-                if (errors.current_password) {
-                    reset('current_password');
-                    currentPasswordInput.current.focus();
-                }
+                console.error(errors);
             },
         });
     };
@@ -73,6 +67,7 @@ export default function Welcome() {
     return (
         <div
             className="font-[var(--font-primary)] flex flex-col h-screen items-center justify-center bg-background-dark">
+            <ToastContainer />
             <div
                 className="bg-login-card-body w-7/8 md:w-xl rounded-md shadow-slow-hide hover:shadow-link-color duration-500 ease-in-out">
                 <form onSubmit={login}>
@@ -119,8 +114,13 @@ export default function Welcome() {
 
                         <div className="flex justify-between mt-4">
                             <div className="flex align-middle">
-                                <input id="remind_me" type="checkbox"/>
-                                <label htmlFor="remind_me"
+                                <input id="remember_me"
+                                       name='remember_me'
+                                       value={data.remember_me}
+                                       onChange={(e) => handleChange('remember_me', !data.remember_me)}
+                                       onBlur={(e) => handleBlur('remember_me')}
+                                       type="checkbox"/>
+                                <label htmlFor="remember_me"
                                        className="text-white mt-[2px] md:mt-0 text-sm md:text-base ml-2">Remind
                                     me</label>
                             </div>
