@@ -4,14 +4,24 @@ import {FaRegEyeSlash} from "react-icons/fa6";
 import {FaRegEye} from "react-icons/fa6";
 import BasicButton from "@/components/Buttons/BasicButton.jsx";
 import {FcGoogle} from "react-icons/fc";
-import {router} from '@inertiajs/react';
+import yup from "@/utilities/yup.js";
+import useValidationHook from "@/hooks/useValidationHook.js";
 import {route} from 'ziggy-js';
+
+
+const loginSchema = yup.object().shape({
+    email: yup.string()
+        .required('Email is required').email(),
+    password: yup.string().min(6, 'Password must be at least 6 characters')
+        .required('Password is required'),
+});
+
 
 export default function Welcome() {
     const [showPass, setShowPass] = useState(false);
 
 
-    const {
+    let {
         data,
         setData,
         errors,
@@ -25,9 +35,20 @@ export default function Welcome() {
         password: '',
     });
 
+    const {
+        validationErrors,
+        handleBlur,
+        handleChange,
+        validateForm,
+    } = useValidationHook(loginSchema, data, (field, value) =>
+        setData((prev) => ({...prev, [field]: value}))
+    );
 
-    const login = (e) => {
+    const login = async (e) => {
         e.preventDefault();
+
+        const isValid = await validateForm(); // ✅ validate whole form
+        if (!isValid) return;
 
         post(route('admin.login'), {
             preserveScroll: true,
@@ -50,7 +71,8 @@ export default function Welcome() {
 
 
     return (
-        <div className="font-[var(--font-primary)] flex flex-col h-screen items-center justify-center bg-background-dark">
+        <div
+            className="font-[var(--font-primary)] flex flex-col h-screen items-center justify-center bg-background-dark">
             <div
                 className="bg-login-card-body w-7/8 md:w-xl rounded-md shadow-slow-hide hover:shadow-link-color duration-500 ease-in-out">
                 <form onSubmit={login}>
@@ -64,16 +86,23 @@ export default function Welcome() {
                         <input type="text"
                                name="email"
                                value={data.email}
-                               onChange={(e) => setData('email', e.target.value)}
-                               className="block text-sm md:text-base w-full p-3.5 h-10 md:h-16 rounded-md border-input-border bg-input-background text-white"
+                               onChange={(e) => handleChange('email', e.target.value)}
+                               onBlur={() => handleBlur('email')}
+                               className={`${validationErrors.email ? 'border-red-300' : 'border-input-border'} block text-sm md:text-base w-full p-3.5 h-10 md:h-16 rounded-md border bg-input-background text-white`}
                                placeholder="Your Email"/>
+                        {(validationErrors.email || errors.email) && (
+                            <div className="text-red-300 text-sm mt-1">
+                                {validationErrors.email || errors.email}
+                            </div>
+                        )}
 
                         <div className="relative mt-5 w-full">
                             <input type={showPass ? "text" : "password"}
                                    name='password'
                                    value={data.password}
-                                   onChange={(e) => setData('password', e.target.value)}
-                                   className="block mt-5 w-full p-3.5 text-sm md:text-base md:h-16 rounded-md border-input-border bg-input-background text-white"
+                                   onChange={(e) => handleChange('password', e.target.value)}
+                                   onBlur={() => handleBlur('password')}
+                                   className={`${validationErrors.password ? 'border-red-300' : 'border-input-border'} block mt-5 w-full p-3.5 text-sm md:text-base md:h-16 rounded-md border bg-input-background text-white`}
                                    placeholder="Password"/>
                             <BasicButton
                                 onClick={() => setShowPass(!showPass)}
@@ -82,6 +111,11 @@ export default function Welcome() {
                                 {showPass ? <FaRegEyeSlash/> : <FaRegEye/>}
                             </BasicButton>
                         </div>
+                        {(validationErrors.password || errors.password) && (
+                            <div className="text-red-300 text-sm mt-1">
+                                {validationErrors.password || errors.password}
+                            </div>
+                        )}
 
                         <div className="flex justify-between mt-4">
                             <div className="flex align-middle">
