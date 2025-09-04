@@ -16,12 +16,22 @@
     --color-login-card-body: #151520;
     --color-input-border: #2a2a35;
     --color-input-background: #1a1a25;
-    --color-submenu-hover: #e0f3ff;
     --color-link-color: #00ff88;
     --color-border-color: #cccccc;
+
+    --color-submenu-hover: #e0f3ff;
     --color-menu-active: #e0f3ff;
 
     --color-permanent-green: #04AA6D;
+    --color-permanent-green-hover: #07bd7a;
+    --color-permanent-blue: #3258a8;
+    --color-permanent-blue-hover: #436ecc;
+    --color-permanent-red: #D61A3C;
+    --color-permanent-red-hover: #e33454;
+
+
+
+
     --color-permanent-overlay: "";
 
 

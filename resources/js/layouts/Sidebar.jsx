@@ -17,9 +17,9 @@ const menuItems = [
     {
         label: "Study Materials",
         icon: <LuFileSpreadsheet/>,
-        prefix: ['admin/category'],
+        prefix: ['admin/categories'],
         children: [
-            {label: "Manage Category", link: 'admin.category'},
+            {label: "Manage Category", link: 'admin.categories.index'},
             {label: "Manage Sub Category",},
         ],
     },

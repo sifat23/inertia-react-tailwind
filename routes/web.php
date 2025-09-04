@@ -22,5 +22,6 @@ Route::post('/admin/login', [AuthController::class, 'store']);
 Route::group(['prefix' => 'admin', 'middleware' => ['admin']], function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/category', [CategoryController::class, 'index'])->name('admin.category');
+
+    Route::resource('/categories',CategoryController::class, ['as' => 'admin']);
 });

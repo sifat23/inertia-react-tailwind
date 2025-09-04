@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -38,6 +39,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'flash' => [
+                'success' => Session::get('success'),
+                'error' => Session::get('error'),
+            ],
             'currentRoute' => [
                 'name' => $request->route()->getName(),
                 'prefix' => $request->route()->getCompiled()->getStaticPrefix(),

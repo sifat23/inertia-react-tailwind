@@ -1,7 +1,8 @@
 import {Link} from "@inertiajs/react";
 import {useEffect, useRef, useState} from "react";
 import Sidebar from "@/layouts/Sidebar.jsx";
-
+import { FaClipboardList } from "react-icons/fa";
+import {ToastContainer} from "react-toastify";
 
 
 
@@ -36,7 +37,9 @@ export default function AdminLayout({children }) {
                     </div>
                     <div className="w-[85%] flex items-center justify-between px-5 min-h-fit">
                         <div className="flex items-center gap-[4vw]">
-
+                            <Link className="border p-2 rounded-md border-gray-300 hover:bg-submenu-hover hover:border-submenu-hover">
+                                <FaClipboardList className="text-xl"/>
+                            </Link>
                         </div>
                         <div className="flex items-center gap-[4vw]">
                             <div className="cursor-pointer relative" ref={dropdownRef}>
@@ -60,6 +63,7 @@ export default function AdminLayout({children }) {
             <div className="flex flex-1 w-full mx-auto ">
                 <Sidebar/>
                 <div className="w-[85%] p-2">
+                    <ToastContainer />
                     {children}
                 </div>
             </div>

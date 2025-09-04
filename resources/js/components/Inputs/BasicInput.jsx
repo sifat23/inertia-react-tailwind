@@ -1,4 +1,5 @@
-const BasicInput = ({ name, type, value, onChange, onBlur, placeholder, className, ...props}) => {
+const BasicInput = ({invalid, name, type, value, onChange, onBlur, placeholder, className, ...props}) => {
+
     return (
         <input
             name={name}
@@ -7,7 +8,7 @@ const BasicInput = ({ name, type, value, onChange, onBlur, placeholder, classNam
             onChange={onChange}
             onBlur={onBlur}
             placeholder={placeholder}
-            className={`pl-3 border w-full border-gray-300 h-10 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500 ${className}`}
+            className={`${ invalid !== undefined ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-gray-500'} pl-3 border w-full  h-10 rounded-md focus:outline-none focus:ring-1 ${className}`}
             {...props}
         />
     )

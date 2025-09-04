@@ -1,13 +1,21 @@
 import AdminLayout from "@/layouts/AdminLayout.jsx";
-import * as Yup from "yup";
 import Breadcrumb from "@/components/Breadcrumb.jsx";
 import {CiSquarePlus} from "react-icons/ci";
 import {RxCross1} from "react-icons/rx";
 import BasicButton from "@/components/Buttons/BasicButton.jsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import BasicInput from "@/components/Inputs/BasicInput.jsx";
 import BasicSelect from "@/components/Inputs/BasicSelect.jsx";
-import {useFormik} from "formik";
+import {Head, Link, useForm, usePage} from "@inertiajs/react";
+import useValidationHook from "@/hooks/useValidationHook.js";
+import yup from "@/utilities/yup.js";
+import {route} from "ziggy-js";
+import InvalidFeedback from "@/components/InvalidFeedback.jsx";
+import {toast} from 'react-toastify';
+import {applyEnum, ucfirst} from "@/utilities/helpers";
+import Pagination from "@/components/Pagination.jsx";
+import Badge from "@/components/Badge.jsx";
+import {FiAlertTriangle} from "react-icons/fi";
 
 const breadcrumb = [
     {
@@ -30,166 +38,289 @@ const selectOptions = [
     }
 ]
 
-export default function CategoryIndex() {
+const loginSchema = yup.object().shape({
+    name: yup.string()
+        .required('Category name is required'),
+    status: yup.string()
+        .oneOf(["0", "1"], "Invalid status value")
+        .required("Status is required"),
+});
+
+export default function CategoryIndex({categories, statues}) {
     const [openInsertBox, setOpenInsertBox] = useState(false);
+    const { flash } = usePage().props;
+    const [openModal, setOpenModal] = useState(false);
 
-    const users = [
-        {id: 1, name: "John Doe", email: "john@example.com", role: "Admin"},
-        {id: 2, name: "Jane Smith", email: "jane@example.com", role: "Editor"},
-        {id: 3, name: "Bob Lee", email: "bob@example.com", role: "User"},
-    ];
+    const [formMode, setFormMode] = useState('create'); // 'create' or 'edit'
+    const [category, setCategory] = useState({});
 
-    const formik = useFormik({
-        initialValues: {
-            name: "",
-            status: "",
-        },
-        validationSchema: Yup.object({
-            name: Yup.string().required("Category name is required"),
-            status: Yup.string().required("Status is required"),
-        }),
-        onSubmit: (values) => {
-            console.log("Form Submitted:", values);
-            // Example for Inertia:
-            // Inertia.post("/categories", values);
-        },
+    useEffect(() => {
+        if (flash.success !== null) {
+            toast.success(`${flash.success}`)
+            reset();
+            setOpenInsertBox(false);
+        }
+        console.log(flash, 'sss')
+    }, [flash]);
+
+    let {
+        data,
+        setData,
+        put,
+        post,
+        reset,
+        delete: destroy,
+        processing,
+        recentlySuccessful,
+    } = useForm({
+        name: '',
+        status: '',
     });
+
+    const {
+        validationErrors,
+        handleBlur,
+        handleChange,
+        validateForm,
+    } = useValidationHook(loginSchema, data, (field, value) =>
+        setData((prev) => ({...prev, [field]: value}))
+    );
+
+
+    const handleForm = async (e) => {
+        e.preventDefault();
+
+        const isValid = await validateForm(); // ✅ validate whole form
+        if (!isValid) return;
+
+        if (formMode === 'create') {
+            post(route('admin.categories.store'));
+        } else if (formMode === 'edit' && category.id) {
+            put(route('admin.categories.update', {category: category.id}));
+        }
+    };
+
+    const handleEditForm = async (e, data) => {
+        e.preventDefault();
+        setData(data)
+
+        setOpenInsertBox(true);
+        setCategory(data);
+        setFormMode('edit')
+    }
+
+    const handleDeleteItem = async (e, data) => {
+        e.preventDefault();
+
+        destroy(route('admin.categories.destroy', {category: category.id}))
+        setOpenModal(false)
+    }
 
 
     return (
-        <div className="m-4">
-            <div className="p-4 bg-white">
-                <h2 className="text-xl font-semibold">All Category</h2>
-                <Breadcrumb items={breadcrumb}/>
-            </div>
+        <>
+            <Head title="Category"/>
+            <div className="m-4">
+                <div className="p-4 bg-white">
+                    <h2 className="text-xl font-semibold">All Category</h2>
+                    <Breadcrumb items={breadcrumb}/>
+                </div>
 
+                <div className="px-4 pt-6 pb-4 mt-4 bg-white">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xl">Table Title</h3>
+                        <div>
+                            <BasicButton
+                                theme={'primary'}
+                                onClick={() => setOpenInsertBox(!openInsertBox)}
+                                className="flex items-center gap-2   ">
+                                <CiSquarePlus className='text-lg font-bold'/> Create New
+                            </BasicButton>
 
-            <div className="px-4 pt-6 pb-4 mt-4 bg-white">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-xl">Table Title</h3>
-                    <div>
-                        <BasicButton
-                            onClick={() => setOpenInsertBox(!openInsertBox)}
-                            className="flex items-center gap-2 bg-permanent-green text-white py-2 px-4 rounded-sm hover:bg-submenu-hover duration-200 ease-in-out">
-                            <CiSquarePlus className='text-lg font-bold'/> Create New
-                        </BasicButton>
+                        </div>
+                    </div>
 
+                    <div className="overflow-x-auto mt-5 rounded-md">
+                        <table className="min-w-full border border-gray-200 text-sm text-left">
+                            {/* Table Head */}
+
+                            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+                            <tr className="border-b border-gray-300">
+                                <th className="px-6 py-3">SL</th>
+                                <th className="px-6 py-3">Name</th>
+                                <th className="px-6 py-3 text-center">Status</th>
+                                <th className="px-6 py-3 text-center">Actions</th>
+                            </tr>
+                            </thead>
+
+                            {/* Table Body */}
+                            <tbody>
+                            {categories.data.map((data, i) => (
+                                <tr
+                                    key={data.id}
+                                    className="border-b border-gray-300 hover:bg-gray-50 transition-colors"
+                                >
+                                    <td className="px-6 py-4 ">{(categories?.current_page - 1) * categories.per_page + (i + 1)}</td>
+                                    <td className="px-6 py-4 border-b border-gray-200">{data.name}</td>
+                                    <td className="px-6 py-4 border-b border-gray-200 text-center">
+                                        {data.status === statues['ACTIVE'] ? (
+                                            <Badge
+                                                theme={'success'}
+                                                string={applyEnum(statues, data.status)}
+                                            />
+                                        ): (
+                                            <Badge
+                                                theme={'danger'}
+                                                string={applyEnum(statues, data.status)}
+                                            />
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 border-b border-gray-200 text-center">
+                                        <BasicButton
+                                            type={"button"}
+                                            onClick={(e) => handleEditForm(e, data)}
+                                            theme={'outlinePrimary'}>
+                                            Edit
+                                        </BasicButton>
+
+                                        <BasicButton
+                                            onClick={(e) => {
+                                                setCategory(data)
+                                                setOpenModal(true)
+                                            }}
+                                            className="ml-3"
+                                            type={"button"}
+                                            theme={'danger'}>
+                                            Delete
+                                        </BasicButton>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                        <Pagination links={categories.links}/>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto mt-5 rounded-md">
-                    <table className="min-w-full border border-gray-200 text-sm text-left">
-                        {/* Table Head */}
-                        <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                        <tr className="border-b border-gray-300">
-                            <th className="px-6 py-3">ID</th>
-                            <th className="px-6 py-3">Name</th>
-                            <th className="px-6 py-3">Email</th>
-                            <th className="px-6 py-3">Role</th>
-                            <th className="px-6 py-3">Actions</th>
-                        </tr>
-                        </thead>
 
-                        {/* Table Body */}
-                        <tbody>
-                        {users.map((user) => (
-                            <tr
-                                key={user.id}
-                                className="border-b border-gray-300 hover:bg-gray-50 transition-colors"
-                            >
-                                <td className="px-6 py-4 ">{user.id}</td>
-                                <td className="px-6 py-4 border-b border-gray-200">{user.name}</td>
-                                <td className="px-6 py-4 border-b border-gray-200">{user.email}</td>
-                                <td className="px-6 py-4 border-b border-gray-200">{user.role}</td>
-                                <td className="px-6 py-4 border-b border-gray-200">
-                                    <button className="text-blue-600 hover:underline mr-2">Edit</button>
-                                    <button className="text-red-600 hover:underline">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div className={`fixed inset-0 z-50 transition-all duration-300 ${openInsertBox ? 'visible' : 'invisible'}`}>
-                {/* Overlay (50% left side) */}
                 <div
-                    className={`absolute top-0 left-0 w-2/3 h-full bg-black/50 transition-opacity duration-300 ${
-                        openInsertBox ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    onClick={() => setOpenInsertBox(false)}
-                ></div>
+                    className={`fixed inset-0 z-50 transition-all duration-300 ${openInsertBox ? 'visible' : 'invisible'}`}>
+                    {/* Overlay (50% left side) */}
+                    <div
+                        className={`absolute top-0 left-0 w-2/3 h-full bg-black/50 transition-opacity duration-300 ${
+                            openInsertBox ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onClick={() => {
+                            setOpenInsertBox(false);
+                            reset();
+                        }}
+                    ></div>
 
-                {/* Sidebar (50% right side) */}
-                <div
-                    className={`absolute top-0 right-0 w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 ${
-                        openInsertBox ? 'translate-x-0' : 'translate-x-full'
-                    }`}
-                >
-                    <div className="m-2 rounded-md">
-                        <div className="p-2 flex items-center justify-between border-b border-b-gray-200">
-                            <h2 className="font-semibold text-lg">Create Category</h2>
-                            <BasicButton onClick={() => setOpenInsertBox(false)}>
-                                <RxCross1 className="text-[20px]" />
-                            </BasicButton>
-                        </div>
-                        <form onSubmit={formik.handleSubmit}>
-                            <div className="px-2 py-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="">
-                                        <label>Category Name</label>
-                                        <BasicInput
-                                            type="text"
-                                            name="name"
-                                            value={formik.values.name}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            placeholder="Input field"
-                                            className={`${formik.touched.name && formik.errors.name ? 'border-red-300 focus:ring-red-300' : ''} mt-2`}
-                                        />
-                                        {formik.touched.name && formik.errors.name ? (
-                                            <div className="text-red-300 text-sm mt-1">
-                                                {formik.errors.name}
-                                            </div>
-                                        ) : null}
+                    {/* Sidebar (50% right side) */}
+                    <div
+                        className={`absolute top-0 right-0 w-1/3 h-full bg-white shadow-lg transform transition-transform duration-300 ${
+                            openInsertBox ? 'translate-x-0' : 'translate-x-full'
+                        }`}
+                    >
+                        <div className="m-2 rounded-md">
+                            <div className="p-2 flex items-center justify-between border-b border-b-gray-200">
+                                <h2 className="font-semibold text-lg">Create Category</h2>
+                                <BasicButton
+                                    theme={'transparent'}
+                                    onClick={() => setOpenInsertBox(false)}>
+                                    <RxCross1 className="text-[20px]"/>
+                                </BasicButton>
+                            </div>
+                            <form onSubmit={handleForm}>
+                                <div className="px-2 py-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="">
+                                            <label>Category Name</label>
+                                            <BasicInput
+                                                type="text"
+                                                name="name"
+                                                value={data.name}
+                                                onChange={(e) => handleChange('name', e.target.value)}
+                                                onBlur={() => handleBlur('name')}
+                                                placeholder="Input field"
+                                                invalid={validationErrors.name}
+                                                className={`mt-2`}
+                                            />
+                                            <InvalidFeedback msg={validationErrors.name}/>
+                                        </div>
+
+                                        <div>
+                                            <label>Status</label>
+                                            <BasicSelect
+                                                name='status'
+                                                value={data.status}
+                                                placeholder="Select One..."
+                                                className={`mt-2`}
+                                                options={selectOptions}
+                                                invalid={validationErrors.status}
+                                                onChange={(e) => {
+                                                    handleChange('status', e.target.value)
+                                                }}
+                                                onBlur={() => handleBlur('status')}
+                                            />
+                                            <InvalidFeedback msg={validationErrors.status}/>
+                                        </div>
                                     </div>
-
-                                    <div>
-                                        <label>Status</label>
-                                        <BasicSelect
-                                            name='status'
-                                            value={formik.values.status}
-                                            placeholder="Select One..."
-                                            className={`${formik.touched.status && formik.errors.status ? 'border-red-300 focus:ring-red-300' : 'border-gray-300 focus:ring-gray-500'} mt-2`}
-                                            options={selectOptions}
-                                            onChange={(e) => {
-                                                formik.setFieldValue('status', e.target.value)
-                                            }}
-                                            onBlur={formik.handleBlur}
-                                        />
-                                        {formik.touched.status && formik.errors.status ? (
-                                            <div className="text-red-300 text-sm mt-1">
-                                                {formik.errors.status}
-                                            </div>
-                                        ) : null}
+                                    <div className="flex justify-end">
+                                        <BasicButton
+                                            type="submit"
+                                            theme={"success"}
+                                            disabled={processing}
+                                            className="mt-8 w-1/6">
+                                            {processing ? "Saving..." : "Save"}
+                                        </BasicButton>
                                     </div>
                                 </div>
-                                <div className="flex justify-end">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div className={`fixed inset-0 z-50 transition-all duration-300 ${openModal ? 'visible' : 'invisible'}`}>
+                    <div className={`absolute top-0 right-0 h-screen w-full bg-black/50 transition-opacity duration-300 ${openModal ? 'opacity-100' : 'opacity-0'}`}
+                    onClick={() => setOpenModal(false)}
+                    >
+
+                    </div>
+                    <div className={`absolute left-1/2 transform top-[10%] w-[30%] h-auto bg-white rounded-md transition-transform duration-300 ${
+                        openModal ? '-translate-x-1/2 translate-y-0 opacity-100' : '-translate-x-1/2 -translate-y-full opacity-0'
+                    }`}>
+                        <div className="m-5 flex items-start justify-center gap-2">
+                            <div className="p-4 bg-red-200 rounded-full">
+                                <FiAlertTriangle className="text-[40px] text-red-500" />
+                            </div>
+                            <div className="pl-2 flex-1 flex-column">
+                                <div className="flex-1 p-2 border-b border-b-gray-300">
+                                    <h3 className="text-2xl font-semibold">Delete Confirmation</h3>
+                                </div>
+                                <div className="flex-1 p-2 text-gray-500">
+                                    <p>Are you sure you want to delete category <span className="text-permanent-red">{category?.name}</span>? This data will be permanently removed. This action cannot be undone.</p>
+                                </div>
+                                <div className="mt-6 flex justify-end gap-4">
+                                    <BasicButton onClick={() => setOpenModal(false)}>
+                                        Cancel
+                                    </BasicButton>
                                     <BasicButton
-                                        type="submit"
-                                        disabled={formik.isSubmitting}
-                                        className="bg-permanent-green text-white mt-8 w-1/6">
-                                        {formik.isSubmitting ? "Saving..." : "Save"}
+                                        onClick={(e) => handleDeleteItem(e, category)}
+                                        theme={"danger"}
+                                    >
+                                        Delete
                                     </BasicButton>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
-
-        </div>
+        </>
     )
 }
 
