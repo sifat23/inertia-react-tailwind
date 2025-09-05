@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('admin_activities', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('admin_id');
+            $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
+            $table->string('model');
+            $table->unsignedBigInteger('model_id');
+            $table->tinyInteger('action');
+            $table->longText('old_value')->nullable();
+            $table->longText('new_value')->nullable();
+
             $table->timestamps();
         });
     }

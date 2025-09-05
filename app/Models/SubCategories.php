@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubCategories extends Model
 {
-    //
+    protected $fillable = [
+        'name',
+        'slug',
+        'status',
+    ];
 }

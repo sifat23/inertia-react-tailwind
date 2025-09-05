@@ -17,10 +17,10 @@ const menuItems = [
     {
         label: "Study Materials",
         icon: <LuFileSpreadsheet/>,
-        prefix: ['admin/categories'],
+        prefix: ['admin/categories', 'admin/subcategories'],
         children: [
             {label: "Manage Category", link: 'admin.categories.index'},
-            {label: "Manage Sub Category",},
+            {label: "Manage Sub Category", link: 'admin.subcategories.index'},
         ],
     },
     {label: "UI Kits"},
